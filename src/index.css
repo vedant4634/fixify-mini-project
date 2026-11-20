@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-navy: #142B4A;
+  --color-navy-dark: #0F2038;
+  --color-secondary-blue: #23466B;
+  --color-secondary-blue-light: #2D5885;
+  --color-vanilla: #F7F3E9;
+  --color-vanilla-light: #FCFAF5;
+  --color-vanilla-dark: #EFE7D5;
+  --color-accent-orange: #E9A04B;
+  --color-accent-orange-hover: #D98F39;
+  --color-accent-orange-light: #FDF3E7;
+  --color-text-main: #202B38;
+  --color-text-muted: #788391;
+  --color-border-subtle: #E5DFD1;
+  --color-border-darker: #D4CBBA;
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Manrope', sans-serif;
+}
+
+:root {
+  --primary-navy: #142B4A;
+  --secondary-blue: #23466B;
+  --bg-vanilla: #F7F3E9;
+  --accent-orange: #E9A04B;
+  --text-main: #202B38;
+  --text-muted: #788391;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #202B38;
+  background-color: #F7F3E9;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #F7F3E9;
+  color: #202B38;
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F3E9;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4CBBA;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #23466B;
+}
+
+/* Leaflet map fix */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  z-index: 10;
+}
