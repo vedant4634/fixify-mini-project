@@ -87,9 +87,17 @@ export default function ServiceDetailPage() {
           <div className="lg:col-span-7 space-y-6">
             <div className="rounded-2xl overflow-hidden border border-border-subtle shadow-md bg-white">
               <img
-                src={service.image}
+                src={service.image || '/images/services/default.svg'}
                 alt={service.name}
                 className="w-full h-80 sm:h-96 object-cover"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  const catId = (service.id || service.slug || service.name || '').toLowerCase();
+                  if (catId.includes('elect')) e.currentTarget.src = '/images/services/electrical.svg';
+                  else if (catId.includes('plumb')) e.currentTarget.src = '/images/services/plumbing.svg';
+                  else if (catId.includes('carp')) e.currentTarget.src = '/images/services/carpentry.svg';
+                  else e.currentTarget.src = '/images/services/default.svg';
+                }}
               />
             </div>
 

@@ -45,10 +45,10 @@ export default function CustomerLogin() {
     }
   };
 
-  // Quick fill for faculty testing
+  // Quick fill for faculty testing with real MySQL database account
   const fillDemo = () => {
-    setEmailOrPhone('kavita.iyer@gmail.com');
-    setPassword('customer123');
+    setEmailOrPhone('aditya.k@fixify.in');
+    setPassword('password123');
   };
 
   return (

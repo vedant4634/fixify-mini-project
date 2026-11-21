@@ -5,6 +5,17 @@
 
 const pool = require('../config/db');
 
+const DEFAULT_CATEGORY_IMAGES = {
+  'ac-repair': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
+  'appliance-repair': 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?auto=format&fit=crop&w=800&q=80',
+  'carpenter': 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800&q=80',
+  'cleaner': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80',
+  'electrician': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
+  'mechanic': 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80',
+  'painter': 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80',
+  'plumber': 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=800&q=80',
+};
+
 function safeParseJson(value, fallback = []) {
   if (!value) return fallback;
   if (typeof value === 'object') return value;
@@ -19,6 +30,9 @@ function safeParseJson(value, fallback = []) {
  * Format category / service row into frontend compatible shape
  */
 function formatServiceCategory(c) {
+  const popServices = safeParseJson(c.popular_services, []);
+  const categoryImage = c.image || DEFAULT_CATEGORY_IMAGES[c.id] || DEFAULT_CATEGORY_IMAGES['plumber'];
+
   return {
     id: c.id,
     slug: c.id,
@@ -26,10 +40,18 @@ function formatServiceCategory(c) {
     shortName: c.short_name || c.name,
     category: c.short_name || c.name,
     icon: c.icon || 'Wrench',
+    image: categoryImage,
+    shortDesc: c.description || 'Professional home repair and installation service',
     description: c.description || 'Professional home repair and installation service',
     startingPrice: Number(c.starting_price) || 299,
     price: Number(c.starting_price) || 299,
-    popularServices: safeParseJson(c.popular_services, []),
+    priceUnit: 'onwards',
+    popularServices: popServices,
+    included: popServices.length > 0 ? popServices : [
+      'Comprehensive inspection and fault diagnosis',
+      'Standard replacement / repair with warranty',
+      'Clean post-work area'
+    ],
     badge: c.badge || 'Popular',
     accentColor: c.accent_color,
     borderColor: c.border_color,
@@ -61,8 +83,8 @@ async function getServiceById(req, res, next) {
   try {
     const { id } = req.params;
 
-    // Check categories first
-    const [catRows] = await pool.query('SELECT * FROM categories WHERE id = ? LIMIT 1', [id]);
+    // Check categories first (by id or slug)
+    const [catRows] = await pool.query('SELECT * FROM categories WHERE id = ? OR short_name = ? LIMIT 1', [id, id]);
     if (catRows.length > 0) {
       return res.status(200).json(formatServiceCategory(catRows[0]));
     }
@@ -79,6 +101,7 @@ async function getServiceById(req, res, next) {
         duration: s.duration,
         description: s.description,
         rating: 4.8,
+        image: DEFAULT_CATEGORY_IMAGES['plumber'],
       });
     }
 
@@ -97,19 +120,21 @@ async function getServiceById(req, res, next) {
  */
 async function createService(req, res, next) {
   try {
-    const { name, shortName, icon, description, startingPrice, price, badge, popularServices } = req.body;
+    const { name, shortName, icon, image, description, startingPrice, price, badge, popularServices } = req.body;
 
     const id = req.body.id || req.body.slug || `svc-${Date.now()}`;
     const cleanPrice = Number(startingPrice || price || 299);
+    const categoryImage = image || DEFAULT_CATEGORY_IMAGES[id] || null;
 
     await pool.query(
-      `INSERT INTO categories (id, name, short_name, icon, description, starting_price, popular_services, badge)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO categories (id, name, short_name, icon, image, description, starting_price, popular_services, badge)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         name || 'New Service',
         shortName || name || 'Service',
         icon || 'Wrench',
+        categoryImage,
         description || 'Custom service package',
         cleanPrice,
         JSON.stringify(popularServices || []),
@@ -131,7 +156,7 @@ async function createService(req, res, next) {
 async function updateService(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, shortName, description, startingPrice, price, icon } = req.body;
+    const { name, shortName, description, startingPrice, price, icon, image } = req.body;
 
     const updates = [];
     const params = [];
@@ -141,6 +166,7 @@ async function updateService(req, res, next) {
     if (description) { updates.push('description = ?'); params.push(description); }
     if (startingPrice || price) { updates.push('starting_price = ?'); params.push(Number(startingPrice || price)); }
     if (icon) { updates.push('icon = ?'); params.push(icon); }
+    if (image) { updates.push('image = ?'); params.push(image); }
 
     if (updates.length > 0) {
       params.push(id);

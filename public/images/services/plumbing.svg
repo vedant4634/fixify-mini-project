@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="plumbBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#142B4A"/>
+      <stop offset="100%" stop-color="#1d3d63"/>
+    </linearGradient>
+    <linearGradient id="dropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#plumbBg)"/>
+  <circle cx="400" cy="230" r="140" fill="#203a5c" opacity="0.6"/>
+  <!-- Pipe network -->
+  <path d="M 220 180 H 320 V 280 H 480 V 180 H 580" fill="none" stroke="#788391" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 320 280 V 330" fill="none" stroke="#788391" stroke-width="20" stroke-linecap="round"/>
+  <!-- Pipe valve / Joint -->
+  <circle cx="400" cy="280" r="28" fill="#E9A04B" stroke="#142B4A" stroke-width="4"/>
+  <!-- Water Droplet -->
+  <path d="M 400 170 C 400 170 360 220 360 245 C 360 267 378 285 400 285 C 422 285 440 267 440 245 C 440 220 400 170 400 170 Z" fill="url(#dropGrad)" filter="drop-shadow(0 4px 10px rgba(37,99,235,0.4))"/>
+  <text x="400" y="440" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="#F7F3E9" text-anchor="middle" letter-spacing="1">PLUMBING SOLUTIONS</text>
+  <text x="400" y="470" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#788391" text-anchor="middle">Emergency Leak Fixes & Installations</text>
+</svg>

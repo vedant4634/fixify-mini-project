@@ -3,7 +3,7 @@
 -- Pre-loaded with 31+ authentic technicians across Pune, Kolhapur & Mumbai
 -- ====================================================================
 
-USE fixify_db;
+USE mpfixfy;
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE saved_providers;

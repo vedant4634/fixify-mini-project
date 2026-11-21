@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="elecBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#142B4A"/>
+      <stop offset="100%" stop-color="#23466B"/>
+    </linearGradient>
+    <linearGradient id="sparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="100%" stop-color="#E9A04B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#elecBg)"/>
+  <circle cx="400" cy="250" r="140" fill="#203a5c" opacity="0.6"/>
+  <circle cx="400" cy="250" r="100" fill="#142B4A" stroke="#E9A04B" stroke-width="4"/>
+  <!-- Circuit lines -->
+  <path d="M 150 250 H 300 M 500 250 H 650 M 400 110 V 150 M 400 350 V 390" stroke="#788391" stroke-width="3" stroke-dasharray="8 6"/>
+  <!-- Lightning bolt / Zap -->
+  <path d="M 415 170 L 360 255 H 410 L 385 330 L 450 235 H 400 Z" fill="url(#sparkGrad)" filter="drop-shadow(0 4px 12px rgba(233,160,75,0.4))"/>
+  <text x="400" y="440" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="#F7F3E9" text-anchor="middle" letter-spacing="1">ELECTRICAL REPAIR</text>
+  <text x="400" y="470" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#788391" text-anchor="middle">Certified Fixify Electricians</text>
+</svg>

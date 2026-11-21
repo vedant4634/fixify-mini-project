@@ -4,11 +4,11 @@
 -- ====================================================================
 
 -- Create Database if it does not already exist
-CREATE DATABASE IF NOT EXISTS fixify_db
+CREATE DATABASE IF NOT EXISTS mpfixfy
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE fixify_db;
+USE mpfixfy;
 
 -- Disable foreign key checks during schema rebuild
 SET FOREIGN_KEY_CHECKS = 0;
@@ -52,6 +52,7 @@ CREATE TABLE categories (
   name VARCHAR(100) NOT NULL,
   short_name VARCHAR(50) NOT NULL,
   icon VARCHAR(50) NOT NULL,
+  image VARCHAR(500) DEFAULT NULL,
   description TEXT,
   starting_price INT NOT NULL DEFAULT 199,
   popular_services JSON DEFAULT NULL,

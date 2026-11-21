@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="carpBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#142B4A"/>
+      <stop offset="100%" stop-color="#2c1e13"/>
+    </linearGradient>
+    <linearGradient id="woodGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B45309"/>
+      <stop offset="50%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#92400E"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#carpBg)"/>
+  <circle cx="400" cy="230" r="140" fill="#203a5c" opacity="0.4"/>
+  <!-- Wooden Plank -->
+  <rect x="250" y="250" width="300" height="40" rx="8" fill="url(#woodGrad)" stroke="#78350F" stroke-width="2"/>
+  <!-- Crossed Hammer & Ruler -->
+  <g transform="translate(400, 210)">
+    <!-- Hammer Handle -->
+    <rect x="-8" y="-90" width="16" height="120" rx="4" fill="#E5E7EB" transform="rotate(-35)"/>
+    <!-- Hammer Head -->
+    <path d="M -50 -70 L -10 -40 L -25 -20 L -65 -50 Z" fill="#E9A04B"/>
+    <!-- Chisel / Ruler -->
+    <rect x="-8" y="-90" width="16" height="120" rx="4" fill="#9CA3AF" transform="rotate(35)"/>
+  </g>
+  <text x="400" y="440" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="#F7F3E9" text-anchor="middle" letter-spacing="1">CARPENTRY &amp; WOODWORK</text>
+  <text x="400" y="470" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#788391" text-anchor="middle">Furniture Assembly &amp; Custom Repairs</text>
+</svg>

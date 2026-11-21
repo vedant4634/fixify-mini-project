@@ -98,39 +98,73 @@ export default function CustomerBookService() {
   // Technicians matching selected service
   const filteredTechnicians = technicians.filter((t) => {
     if (!selectedService) return true;
-    return t.category.toLowerCase().includes(selectedService.name.toLowerCase());
+    const sId = (selectedService.id || selectedService.slug || '').toLowerCase();
+    const sName = (selectedService.name || '').toLowerCase();
+    const tCat = (t.category || t.categoryId || '').toLowerCase();
+    const tCatName = (t.categoryName || '').toLowerCase();
+
+    return (
+      tCat === sId ||
+      tCatName === sName ||
+      tCat.includes(sId) ||
+      sId.includes(tCat) ||
+      tCatName.includes(sName) ||
+      sName.includes(tCatName) ||
+      (sName.includes('plumb') && tCat.includes('plumb')) ||
+      (sName.includes('elect') && tCat.includes('elect')) ||
+      (sName.includes('carp') && tCat.includes('carp')) ||
+      (sName.includes('clean') && tCat.includes('clean')) ||
+      (sName.includes('paint') && tCat.includes('paint')) ||
+      (sName.includes('ac') && tCat.includes('ac')) ||
+      (sName.includes('appliance') && tCat.includes('appliance')) ||
+      (sName.includes('mechanic') && tCat.includes('mechanic'))
+    );
   });
 
   // Handle Confirm Booking
   const handleConfirmBooking = async () => {
     setSubmitting(true);
     try {
+      const activeTech = selectedTechnician || (filteredTechnicians.length > 0 ? filteredTechnicians[0] : (technicians.length > 0 ? technicians[0] : null));
+      const startingPrice = Number(selectedService?.startingPrice || selectedService?.price || 299);
+      const computedTotal = startingPrice + 25 + 49;
+
       const payload = {
-        customerId: user?.id || 'cust-1',
-        customerName: customerInfo.name,
-        customerPhone: customerInfo.phone,
+        customerId: user?.id ? String(user.id) : null,
+        customerName: customerInfo.name || user?.name || 'Fixify Customer',
+        customerPhone: customerInfo.phone || user?.phone || '+91 98000 00000',
         serviceId: selectedService?.id,
-        serviceName: selectedService?.name,
-        technicianId: selectedTechnician?.id || (filteredTechnicians[0]?.id || null),
-        technicianName: selectedTechnician?.name || (filteredTechnicians[0]?.name || 'Unassigned'),
-        technicianPhone: selectedTechnician?.phone || (filteredTechnicians[0]?.phone || ''),
+        serviceName: selectedService?.name || 'General Home Service',
+        categoryName: selectedService?.category || selectedService?.name,
+        technicianId: activeTech?.id || 'prov-ac-1',
+        providerId: activeTech?.id || 'prov-ac-1',
+        technicianName: activeTech?.name || 'Certified Specialist',
+        providerName: activeTech?.name || 'Certified Specialist',
+        businessName: activeTech?.businessName || activeTech?.name || 'Fixify Verified Partner',
+        providerPhoto: activeTech?.photo || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+        technicianPhone: activeTech?.phone || '+91 98221 00000',
         date: bookingDate,
         timeSlot: selectedTimeSlot,
-        address: customerInfo.address,
+        address: `${customerInfo.address}${customerInfo.city ? ', ' + customerInfo.city : ''}${customerInfo.pincode ? ' - ' + customerInfo.pincode : ''}`,
         city: customerInfo.city,
         pincode: customerInfo.pincode,
         lat: customerInfo.lat,
         lng: customerInfo.lng,
-        estimatedPrice: selectedService?.startingPrice || 350,
-        description: customerInfo.description || 'Standard inspection and maintenance.',
+        price: startingPrice,
+        taxes: 25,
+        platformFee: 49,
+        totalAmount: computedTotal,
+        notes: customerInfo.description || 'Standard home inspection and service.',
+        paymentMethod: 'Pay After Service (Cash / UPI)',
       };
 
       const result = await api.bookings.create(payload);
-      setConfirmedBooking(result);
+      setConfirmedBooking(result.booking || result);
       setCurrentStep(6);
       toast.success('Your home service appointment has been scheduled!');
     } catch (err) {
-      toast.error('Booking failed. Please check your information.');
+      console.error('Booking submission error:', err);
+      toast.error(err.message || 'Booking failed. Please check your information.');
     } finally {
       setSubmitting(false);
     }

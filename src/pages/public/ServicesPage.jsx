@@ -147,9 +147,17 @@ export default function ServicesPage() {
                   <div>
                     <div className="relative h-48 overflow-hidden bg-vanilla-dark">
                       <img
-                        src={service.image}
+                        src={service.image || '/images/services/default.svg'}
                         alt={service.name}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          const catId = (service.id || service.slug || service.name || '').toLowerCase();
+                          if (catId.includes('elect')) e.currentTarget.src = '/images/services/electrical.svg';
+                          else if (catId.includes('plumb')) e.currentTarget.src = '/images/services/plumbing.svg';
+                          else if (catId.includes('carp')) e.currentTarget.src = '/images/services/carpentry.svg';
+                          else e.currentTarget.src = '/images/services/default.svg';
+                        }}
                       />
                       <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs p-2 rounded-lg text-primary-navy shadow-xs">
                         <IconComp className="w-5 h-5" />

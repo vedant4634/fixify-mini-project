@@ -16,7 +16,7 @@ const config = {
   password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : '',
 };
 
-const DB_NAME = process.env.DB_NAME || 'fixify_db';
+const DB_NAME = process.env.DB_NAME || 'mpfixfy';
 
 const EXPECTED_TABLES = [
   'users',

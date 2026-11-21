@@ -14,3 +14,7 @@ npm-debug.log*
 # OS / Editor files
 .DS_Store
 Thumbs.db
+
+# Database backups
+backups/
+*.backup.sql

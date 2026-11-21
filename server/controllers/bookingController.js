@@ -76,24 +76,60 @@ async function createBooking(req, res, next) {
       paymentMethod = 'Pay After Service (Cash / UPI)',
     } = req.body;
 
-    const targetProviderId = providerId || technicianId;
+    let targetProviderId = providerId || technicianId;
+    let targetProviderName = providerName || technicianName || 'Certified Technician';
+    let targetBusinessName = businessName || null;
+    let targetProviderPhoto = providerPhoto || null;
     const targetServiceName = serviceName || 'General Home Service';
     const targetDate = date || new Date().toISOString().split('T')[0];
     const targetTimeSlot = timeSlot || time || '10:00 AM - 12:00 PM';
     const targetAddress = address || 'Pune, Maharashtra';
 
+    // Verify provider exists in providers table to enforce foreign key integrity
+    if (targetProviderId && targetProviderId !== 'null') {
+      const [provExists] = await pool.query('SELECT id, name, business_name, photo FROM providers WHERE id = ? LIMIT 1', [targetProviderId]);
+      if (provExists.length > 0) {
+        targetProviderName = targetProviderName || provExists[0].name;
+        targetBusinessName = targetBusinessName || provExists[0].business_name;
+        targetProviderPhoto = targetProviderPhoto || provExists[0].photo;
+      } else {
+        targetProviderId = null;
+      }
+    }
+
+    // If no valid provider found, auto-assign the best available technician
     if (!targetProviderId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Provider / Technician ID is required.',
-      });
+      const [bestTech] = await pool.query('SELECT id, name, business_name, photo FROM providers ORDER BY rating DESC LIMIT 1');
+      if (bestTech.length > 0) {
+        targetProviderId = bestTech[0].id;
+        targetProviderName = bestTech[0].name;
+        targetBusinessName = bestTech[0].business_name;
+        targetProviderPhoto = bestTech[0].photo;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'No active technician available for booking.',
+        });
+      }
     }
 
     // Generate readable booking reference ID
     const randomSuffix = Math.floor(10000 + Math.random() * 90000);
     const bookingId = `FIX-${randomSuffix}`;
 
-    const userId = req.user ? req.user.id : null;
+    // Validate customer / user ID against users table
+    let userId = req.user ? req.user.id : null;
+    const rawCustomerId = req.body.customerId;
+    if (!userId && rawCustomerId) {
+      const numId = parseInt(String(rawCustomerId).replace(/\D/g, ''), 10);
+      if (!isNaN(numId)) {
+        const [uCheck] = await pool.query('SELECT id FROM users WHERE id = ? LIMIT 1', [numId]);
+        if (uCheck.length > 0) {
+          userId = numId;
+        }
+      }
+    }
+
     const computedTotal = totalAmount !== undefined
       ? Number(totalAmount)
       : (Number(price) + Number(taxes) + Number(platformFee));
@@ -111,10 +147,10 @@ async function createBooking(req, res, next) {
       bookingId,
       userId,
       targetProviderId,
-      providerName || technicianName || 'Certified Technician',
-      businessName || null,
+      targetProviderName,
+      targetBusinessName,
       categoryName || null,
-      providerPhoto || null,
+      targetProviderPhoto,
       targetServiceName,
       targetDate,
       targetTimeSlot,

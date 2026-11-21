@@ -200,10 +200,18 @@ export default function HomePage() {
                 {/* Service Card Image */}
                 <div className="relative h-44 overflow-hidden bg-vanilla-dark">
                   <img
-                    src={cat.image}
+                    src={cat.image || '/images/services/default.svg'}
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      const catId = (cat.id || cat.slug || cat.name || '').toLowerCase();
+                      if (catId.includes('elect')) e.currentTarget.src = '/images/services/electrical.svg';
+                      else if (catId.includes('plumb')) e.currentTarget.src = '/images/services/plumbing.svg';
+                      else if (catId.includes('carp')) e.currentTarget.src = '/images/services/carpentry.svg';
+                      else e.currentTarget.src = '/images/services/default.svg';
+                    }}
                   />
                   <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs p-2 rounded-lg text-primary-navy shadow-xs">
                     <IconComponent className="w-5 h-5 text-primary-navy" />

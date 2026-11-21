@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="defBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#142B4A"/>
+      <stop offset="100%" stop-color="#23466B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#defBg)"/>
+  <circle cx="400" cy="230" r="120" fill="#203a5c" opacity="0.6"/>
+  <circle cx="400" cy="230" r="80" fill="#142B4A" stroke="#E9A04B" stroke-width="4"/>
+  <!-- Wrench Icon -->
+  <path d="M 425 180 C 440 195 440 220 425 235 L 435 305 C 435 315 425 320 415 320 C 405 320 395 315 395 305 L 390 270 L 375 255 C 360 240 360 215 375 200 C 385 190 400 185 410 190 L 390 210 L 405 225 L 425 205 C 420 195 420 185 425 180 Z" fill="#E9A04B"/>
+  <text x="400" y="440" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="#F7F3E9" text-anchor="middle" letter-spacing="1">FIXIFY HOME SERVICES</text>
+  <text x="400" y="470" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#788391" text-anchor="middle">Trusted Local Home Care &amp; Repairs</text>
+</svg>

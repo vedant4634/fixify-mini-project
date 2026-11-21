@@ -42,10 +42,11 @@ async function runSeed() {
     console.log('✅ Database seeded successfully with 31+ authentic technicians!');
 
     // 4. Verification queries
-    const [providersCount] = await connection.query('SELECT COUNT(*) as count FROM fixify_db.providers');
-    const [servicesCount] = await connection.query('SELECT COUNT(*) as count FROM fixify_db.services');
-    const [reviewsCount] = await connection.query('SELECT COUNT(*) as count FROM fixify_db.reviews');
-    const [usersCount] = await connection.query('SELECT COUNT(*) as count FROM fixify_db.users');
+    const targetDb = process.env.DB_NAME || 'mpfixfy';
+    const [providersCount] = await connection.query(`SELECT COUNT(*) as count FROM \`${targetDb}\`.providers`);
+    const [servicesCount] = await connection.query(`SELECT COUNT(*) as count FROM \`${targetDb}\`.services`);
+    const [reviewsCount] = await connection.query(`SELECT COUNT(*) as count FROM \`${targetDb}\`.reviews`);
+    const [usersCount] = await connection.query(`SELECT COUNT(*) as count FROM \`${targetDb}\`.users`);
 
     console.log('\n📊 Database Status Summary:');
     console.log(`   - Users:     ${usersCount[0].count}`);

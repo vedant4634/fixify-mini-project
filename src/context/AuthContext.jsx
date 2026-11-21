@@ -23,117 +23,98 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  // Customer Login
+  // Validate stored session with backend on initial load
+  useEffect(() => {
+    async function verifySession() {
+      const token = localStorage.getItem('fixify_token');
+      if (token && !token.startsWith('demo_')) {
+        try {
+          const res = await api.auth.getMe();
+          if (res && res.user) {
+            setUser(res.user);
+          }
+        } catch {
+          // Token expired or invalid
+          console.warn('[Fixify Auth] Stored session expired or invalid. Clearing token.');
+          localStorage.removeItem('fixify_token');
+          localStorage.removeItem('fixify_current_user');
+          setUser(null);
+        }
+      }
+    }
+    verifySession();
+  }, []);
+
+  // Customer Login - Direct Backend Authentication with MySQL mpfixfy
   const loginCustomer = async (emailOrPhone, password, remember = true) => {
     setLoading(true);
     try {
-      // Find customer in stored customers or match mock
-      const customers = await api.customers.getAll();
-      const matched = customers.find(
-        (c) =>
-          c.email.toLowerCase() === emailOrPhone.toLowerCase() ||
-          c.phone.replace(/\s+/g, '') === emailOrPhone.replace(/\s+/g, '')
-      );
-
-      // Allow login for matched customer or create demo session
-      const authUser = matched
-        ? { ...matched, role: 'customer' }
-        : {
-            id: 'cust-demo',
-            name: emailOrPhone.includes('@') ? emailOrPhone.split('@')[0] : 'Fixify Customer',
-            email: emailOrPhone.includes('@') ? emailOrPhone : 'customer@fixify.in',
-            phone: '+91 98200 12345',
-            city: 'Mumbai',
-            address: 'Flat 402, Sea Green Apts, Juhu Tara Road, Mumbai',
-            pincode: '400049',
-            role: 'customer',
-          };
-
-      setUser(authUser);
-      if (remember) {
-        localStorage.setItem('fixify_token', 'demo_customer_token_' + Date.now());
+      const res = await api.auth.login(emailOrPhone, password);
+      if (res && res.token && res.user) {
+        setUser(res.user);
+        if (remember) {
+          localStorage.setItem('fixify_token', res.token);
+        }
+        return { success: true, user: res.user };
       }
-      return { success: true, user: authUser };
+      throw new Error(res.message || 'Login failed.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Customer Signup
+  // Customer Signup - Inserts actual record into mpfixfy.users
   const signupCustomer = async (formData) => {
     setLoading(true);
     try {
-      const newCustomer = {
-        id: `cust-${Date.now()}`,
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        city: formData.city || 'Mumbai',
-        pincode: formData.pincode || '400001',
-        bookingsCount: 0,
-        totalSpent: 0,
-        status: 'Active',
-        joinedDate: new Date().toISOString().split('T')[0],
-        role: 'customer',
-      };
-
-      // Add to stored customers
-      const existing = await api.customers.getAll();
-      localStorage.setItem('fixify_customers', JSON.stringify([...existing, newCustomer]));
-
-      setUser(newCustomer);
-      localStorage.setItem('fixify_token', 'demo_customer_token_' + Date.now());
-      return { success: true, user: newCustomer };
+      const res = await api.auth.signup(formData);
+      if (res && res.token && res.user) {
+        setUser(res.user);
+        localStorage.setItem('fixify_token', res.token);
+        return { success: true, user: res.user };
+      }
+      throw new Error(res.message || 'Registration failed.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Technician Login
+  // Technician Login - Direct Backend Authentication
   const loginTechnician = async (emailOrPhone, password) => {
     setLoading(true);
     try {
-      const techs = await api.technicians.getAll();
-      const matched = techs.find(
-        (t) =>
-          t.email.toLowerCase() === emailOrPhone.toLowerCase() ||
-          t.phone.replace(/\s+/g, '') === emailOrPhone.replace(/\s+/g, '')
-      );
+      // First attempt database user login
+      try {
+        const res = await api.auth.login(emailOrPhone, password);
+        if (res && res.token && res.user) {
+          const techUser = { ...res.user, role: 'technician' };
+          setUser(techUser);
+          localStorage.setItem('fixify_token', res.token);
+          return { success: true, user: techUser };
+        }
+      } catch (authErr) {
+        // If not in users table yet, check if registered in providers table
+        const techs = await api.technicians.getAll();
+        const matched = techs.find(
+          (t) =>
+            t.email?.toLowerCase() === emailOrPhone.toLowerCase() ||
+            t.phone?.replace(/\s+/g, '') === emailOrPhone.replace(/\s+/g, '')
+        );
 
-      if (matched) {
-        const authUser = { ...matched, role: 'technician' };
-        setUser(authUser);
-        localStorage.setItem('fixify_token', 'demo_tech_token_' + Date.now());
-        return { success: true, user: authUser };
+        if (matched) {
+          const techUser = { ...matched, role: 'technician' };
+          setUser(techUser);
+          localStorage.setItem('fixify_token', 'tech_session_' + matched.id);
+          return { success: true, user: techUser };
+        }
+        throw authErr;
       }
-
-      // If user typed a custom email for demo
-      const demoTech = {
-        id: 'tech-custom',
-        name: 'Suresh Verma',
-        email: emailOrPhone,
-        phone: '+91 97405 88219',
-        city: 'Bengaluru',
-        category: 'AC Repair & Maintenance',
-        skills: 'Jet cleaning, refrigerant charging',
-        experience: '8 years',
-        rating: 4.9,
-        verified: true,
-        status: 'Verified',
-        available: true,
-        role: 'technician',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      };
-      setUser(demoTech);
-      localStorage.setItem('fixify_token', 'demo_tech_token_' + Date.now());
-      return { success: true, user: demoTech };
     } finally {
       setLoading(false);
     }
   };
 
-  // Technician Registration
+  // Technician Registration - Inserts into mpfixfy.providers
   const registerTechnician = async (techData) => {
     setLoading(true);
     try {
@@ -150,34 +131,29 @@ export function AuthProvider({ children }) {
         hourlyRate: Number(techData.hourlyRate) || 350,
       });
 
-      const authUser = { ...created, role: 'technician' };
+      const authUser = { ...(created.technician || created), role: 'technician' };
       setUser(authUser);
-      localStorage.setItem('fixify_token', 'demo_tech_token_' + Date.now());
+      localStorage.setItem('fixify_token', 'tech_session_' + (authUser.id || Date.now()));
       return { success: true, user: authUser };
     } finally {
       setLoading(false);
     }
   };
 
-  // Admin Login
+  // Admin Login - Verifies credentials in mpfixfy.users table (admin@fixify.in)
   const loginAdmin = async (email, password) => {
     setLoading(true);
     try {
-      // In production, validates against backend auth endpoint
-      if (email.toLowerCase().includes('admin') || email.toLowerCase() === 'admin@fixify.in') {
-        const adminUser = {
-          id: 'admin-super',
-          name: 'Super Admin',
-          email: 'admin@fixify.in',
-          role: 'admin',
-          designation: 'Operations Head',
-        };
-        setUser(adminUser);
-        localStorage.setItem('fixify_token', 'demo_admin_token_' + Date.now());
-        return { success: true, user: adminUser };
-      } else {
-        throw new Error('Invalid Admin Credentials. Use admin@fixify.in');
+      const res = await api.auth.login(email, password);
+      if (res && res.token && res.user) {
+        if (res.user.role !== 'admin') {
+          throw new Error('Access denied. This account does not have administrator privileges.');
+        }
+        setUser(res.user);
+        localStorage.setItem('fixify_token', res.token);
+        return { success: true, user: res.user };
       }
+      throw new Error(res.message || 'Admin authentication failed.');
     } finally {
       setLoading(false);
     }
