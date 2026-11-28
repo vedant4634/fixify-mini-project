@@ -40,6 +40,7 @@ const configuredFrontend = process.env.FRONTEND_URL || process.env.CLIENT_URL;
 const allowedOrigins = [
   'https://fixify-trusted-local-home-service.onrender.com',
   'https://fixify-trusted-local-home-service.onrender.com/',
+  'https://fixify-mini-project-1.onrender.com',
 ];
 
 if (configuredFrontend) {
